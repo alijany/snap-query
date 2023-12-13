@@ -1,7 +1,7 @@
 {
-  "name": "nano-query",
+  "name": "mini-query",
   "version": "1.0.0",
-  "description": "Powerful data fetching library for React. TS/JS. Framework agnostic.",
+  "description": "Nano Query is a minimalistic and type strict library for creating custom query and mutate hooks in React. It leverages the power of nanostores, axios, and zod to provide a simple and efficient way to manage API requests and state in your application.",
   "author": "Mohammad Hosein Alijany",
   "keywords": [
     "react-query",
@@ -10,18 +10,18 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alijany/nano-query.git"
+    "url": "git+https://github.com/alijany/mini-query.git"
   },
   "license": "ISC",
   "source": "./script.ts",
   "type": "module",
   "exports": {
-    "require": "./dist/nano-query.cjs",
-    "default": "./dist/nano-query.modern.js"
+    "require": "./dist/mini-query.cjs",
+    "default": "./dist/mini-query.modern.js"
   },
-  "main": "./dist/nano-query.cjs",
-  "module": "./dist/nano-query.module.js",
-  "unpkg": "./dist/nano-query.umd.js",
+  "main": "./dist/mini-query.cjs",
+  "module": "./dist/mini-query.module.js",
+  "unpkg": "./dist/mini-query.umd.js",
   "types": "./dist/script.d.ts",
   "scripts": {
     "build": "microbundle",

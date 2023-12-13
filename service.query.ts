@@ -1,7 +1,8 @@
 import axios from "axios";
 import { onSet } from "nanostores";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ExtractRouteParams, FetchLoadingState, FetchState, CreateQueryHookOptions, UseQueryParams, UseQueryReturn } from "./model";
+import { ZodType, ZodTypeDef } from "zod";
+import { CreateQueryHookOptions, ExtractRouteParams, FetchLoadingState, FetchState, UseQueryParams, UseQueryReturn } from "./model";
 import { replaceUrlParam } from "./utils";
 
 const initialState = {
@@ -15,16 +16,22 @@ const initialState = {
 
 export function createQueryHook<
     Req = unknown,
+    Res = unknown,
     U extends string = string,
 >(
     url: U,
-    { skip, watchAtoms, ...defaultOptions }: CreateQueryHookOptions<Req>,
+    { watchAtoms, defaultValidator, ...defaultOptions }: CreateQueryHookOptions<Req> & {
+        defaultValidator?: ZodType<Res, ZodTypeDef>;
+    },
 ) {
-    return function useQuery<Res>({
+    return function useQuery({
         pathParams,
         validator,
+        skip,
         ...options
-    }: UseQueryParams<Req, Res, ExtractRouteParams<U>>) {
+    }: UseQueryParams<Req, ExtractRouteParams<U>> & {
+        validator?: ZodType<Res, ZodTypeDef>;
+    }) {
         const [state, setState] = useState<FetchState<Res>>(initialState);
         const controller = useRef(new AbortController());
 
@@ -38,15 +45,12 @@ export function createQueryHook<
                 return;
             }
 
-            setState(
-                (state) =>
-                    ({
-                        ...state,
-                        isError: false,
-                        error: null,
-                        isLoading: true,
-                    }) as FetchLoadingState<Res>,
-            );
+            setState((state) => ({
+                ...state,
+                isError: false,
+                error: null,
+                isLoading: true,
+            }) as FetchLoadingState<Res>,);
 
             controller.current = new AbortController();
 

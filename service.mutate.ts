@@ -14,7 +14,7 @@ const initialState = {
   isSuccess: false,
 } as const;
 
-export const createMutateHook = <
+export function createMutateHook<
   Req = unknown,
   Res = unknown,
   U extends string = string,
@@ -26,8 +26,11 @@ export const createMutateHook = <
     defaultValidator,
     ...defaultOptions
   }: MutateOptions<Req> & { defaultValidator?: ZodType<Res, ZodTypeDef> },
-) =>
-  function useMutate({ validator, ...mutateOptions }: { validator?: ZodType<Res, ZodTypeDef> } & AxiosRequestConfig<Req>) {
+) {
+
+  type Param = ExtractRouteParams<U>;
+
+  return function useMutate({ validator, ...mutateOptions }: { validator?: ZodType<Res, ZodTypeDef> } & AxiosRequestConfig<Req>) {
     const [state, setState] = useState<FetchState<Res>>(initialState);
 
     const controller = useRef(new AbortController());
@@ -35,7 +38,7 @@ export const createMutateHook = <
     const reset = () => setState(initialState);
 
     const mutate = useCallback(
-      async (req: Req, pathParams: ExtractRouteParams<U>) => {
+      async (options: { req?: AxiosRequestConfig<Req> } & (Param extends void ? { pathParams?: void } : { pathParams: Param })) => {
         setState(
           (state) =>
             ({
@@ -45,13 +48,14 @@ export const createMutateHook = <
               isLoading: true,
             }) as FetchLoadingState<Res>,
         );
-        const compiledUrl = replaceUrlParam(url, pathParams ?? {});
+        const compiledUrl = replaceUrlParam(url, options.pathParams ?? {});
         try {
           const result = await axios<Res>({
             signal: controller.current.signal,
             ...defaultOptions,
             ...mutateOptions,
-            data: reqInterceptor(req),
+            ...options.req,
+            data: options.req?.data && reqInterceptor(options.req.data),
             url: compiledUrl,
           });
           const validatorResult = validator
@@ -90,9 +94,10 @@ export const createMutateHook = <
     return useMemo(
       () =>
         [
-          {mutate, cancel: () => controller.current.abort(), reset},
+          { mutate, cancel: () => controller.current.abort(), reset },
           state as FetchState<Res>,
         ] as const,
       [mutate, state],
     );
   };
+}

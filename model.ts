@@ -1,6 +1,6 @@
 import type { AxiosError, AxiosRequestConfig } from "axios";
 import type { WritableAtom } from "nanostores";
-import type { ZodError, ZodType, ZodTypeDef } from "zod";
+import type { ZodError } from "zod";
 
 export type ExtractRouteParams<T> = string extends T
     ? Record<string, string>
@@ -18,7 +18,6 @@ export type MutateOptions<Req> = AxiosRequestConfig<Req> & {
 };
 
 export type CreateQueryHookOptions<Req> = AxiosRequestConfig<Req> & {
-    skip?: boolean;
     watchAtoms?: WritableAtom<void>[];
 };
 
@@ -83,6 +82,6 @@ export type UseQueryReturn<Res> = FetchState<Res> & {
     refresh: () => Promise<void>;
 };
 
-export type UseQueryParams<Req, Res, Param> = AxiosRequestConfig<Req> & {
-    validator?: ZodType<Res, ZodTypeDef>;
-} & (Param extends void ? { pathParams?: void } : { pathParams: Param });
+export type UseQueryParams<Req, Param> = AxiosRequestConfig<Req> & (Param extends void ? { pathParams?: void } : { pathParams: Param }) & {
+    skip?: boolean,
+};

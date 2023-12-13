@@ -1,66 +1,134 @@
-# Object to FormData Converter
+# Nano Query
 
-This is a JavaScript utility function that converts JavaScript nested objects into FormData. It's beneficial when you need to send your data to the server in `multipart/form-data` format. This utility is built with TypeScript and Lodash.
+Nano Query is a minimalistic and type strict library for creating custom query and mutate hooks in React. It leverages the power of nanostores, axios, and zod to provide a simple and efficient way to manage API requests and state in your application. The package includes two main functions, createQueryHook and createMutateHook, which allow you to define and manage API queries and mutations respectively.
 
 ## Installation
 
-To install this package, use the following command:
+You can install Nano Query via npm:
 
 ```bash
-npm install nested-formdata
+npm install nano-query
 ```
 
 ## Usage
 
-First, import the function into your JavaScript or TypeScript file:
+### Creating a Query Hook
+
+First, import the `createQueryHook` function from Nano Query:
 
 ```ts
-import { objectToFormData } from 'nested-formdata';
+import { createQueryHook } from "nano-query";
 ```
 
-You can then use the objectToFormData function to convert an objects or array of objects to FormData:
+Then, define a URL and a DTO (Data Transfer Object) using zod:
 
 ```ts
-const data = {
-  name: 'John Doe',
-  age: 30,
-  photo: File // This can be an instance of File Or array of Files
-};
+import { z } from "zod"
 
-const formData = objectToFormData(data);
+// Define the URL for the API endpoint, with a parameter placeholder
+const url = '/test/:myPathParam'
+
+// Define the structure of the response data using zod for validation
+const dto = z.object({
+    name: z.string(),
+})
 ```
 
-
-You can also handle nested objects:
+Finally, create the query hook:
 
 ```ts
-const data = {
-  name: 'John Doe',
-  age: 30,
-  address: {
-    city: 'New York',
-    state: 'NY'
-    array: [1, 2, 3],
-    image: File,
-  }
-};
+// Create a custom query hook using the createQueryHook function
+const useQuery = createQueryHook(url, {
+    // Default validator of the response body
+    defaultValidator: dto,
+    // List of nanostores atoms to watch and trigger refetch when they change
+    watchAtoms: [],
+    // Additional axios request config options can be provided here
+    // ...
+})
+```
+### Using the Query Hook
 
-const formData = objectToFormData(data);
+Now you can use the query hook in your components:
+
+```ts
+import React, { useEffect } from "react"
+
+// Define a test hook to use the custom query hook
+export const testHook = () => {
+    // Create memoized params for useQuery to avoid unnecessary rerenders
+    const params = React.useMemo(() => ({
+        pathParams: {
+            myPathParam: 'test' // Define path parameters for the request
+        },
+        // This option disables the query hook until it becomes false
+        skip: false,
+        // Additional axios request config options can be provided here
+    }), [])
+
+    // Use the custom query hook with the memoized params
+    const queryResult = useQuery(params)
+
+    // Perform an action with the query result
+    useEffect(() => {
+        // If the request was successful, log the name from the response data
+        if (queryResult.isSuccess) {
+            console.log(queryResult.data.name)
+        }
+    }, [queryResult])
+}
 ```
 
-## API
+### Creating a Mutation Hook
 
-`objectToFormData(obj, form, namespace)`
+Similar to the query hook, you can create a mutation hook:
 
-### Parameters
+```ts
+import { createMutateHook } from "nano-query";
 
-- `obj` (Object): The object to convert.
-- `form` (FormData, optional): Existing FormData to use.
-- `namespace` (String, optional): Namespace to prefix keys with.
+// Create a custom mutate hook using the createMutateHook function
+const useMutate = createMutateHook(url, {
+    // Default validator of the response body
+    defaultValidator: dto,
+    // List of nanostores atoms to trigger query hook when they change to update them
+    emitAtoms: [],
+    // Additional axios request config options can be provided here
+})
+```
 
-### Returns
+### Using the Mutation Hook
 
-- (FormData): The resulting FormData object.
+And use it in your components:
+
+```ts
+// Define a test hook to use the custom mutate hook
+export const testMutate = () => {
+    // Create memoized params for useQuery to avoid unnecessary rerenders
+    const params = React.useMemo(() => ({
+        // Additional axios request config options can be provided here
+    }), [])
+
+    // Use the custom mutate hook with the memoized params
+    const [{ cancel, mutate, reset }, queryResult] = useMutate(params)
+
+    useEffect(() => {
+        // Trigger a mutation with the specified path parameters
+        mutate({
+            pathParams: {
+                myPathParam: 'test' // Define path parameters for the mutation
+            },
+        })
+    }, [])
+
+    // Perform an action with the mutation result
+    useEffect(() => {
+        // If the request was successful, log the name from the response data
+        if (queryResult.isSuccess) {
+            console.log(queryResult.data.name)
+        }
+    }, [queryResult])
+}
+```
 
 ## Contributing
 

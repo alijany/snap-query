@@ -1,5 +1,5 @@
 {
-  "name": "micro-api",
+  "name": "nano-query",
   "version": "1.0.0",
   "description": "Powerful data fetching library for React. TS/JS. Framework agnostic.",
   "author": "Mohammad Hosein Alijany",
@@ -10,18 +10,18 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alijany/micro-api.git"
+    "url": "git+https://github.com/alijany/nano-query.git"
   },
   "license": "ISC",
   "source": "./script.ts",
   "type": "module",
   "exports": {
-    "require": "./dist/micro-api.cjs",
-    "default": "./dist/micro-api.modern.js"
+    "require": "./dist/nano-query.cjs",
+    "default": "./dist/nano-query.modern.js"
   },
-  "main": "./dist/micro-api.cjs",
-  "module": "./dist/micro-api.module.js",
-  "unpkg": "./dist/micro-api.umd.js",
+  "main": "./dist/nano-query.cjs",
+  "module": "./dist/nano-query.module.js",
+  "unpkg": "./dist/nano-query.umd.js",
   "types": "./dist/script.d.ts",
   "scripts": {
     "build": "microbundle",

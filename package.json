@@ -1,0 +1,52 @@
+{
+  "name": "micro-api",
+  "version": "1.0.0",
+  "description": "Powerful data fetching library for React. TS/JS. Framework agnostic.",
+  "author": "Mohammad Hosein Alijany",
+  "keywords": [
+    "react-query",
+    "mutation",
+    "query"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alijany/micro-api.git"
+  },
+  "license": "ISC",
+  "source": "./script.ts",
+  "type": "module",
+  "exports": {
+    "require": "./dist/micro-api.cjs",
+    "default": "./dist/micro-api.modern.js"
+  },
+  "main": "./dist/micro-api.cjs",
+  "module": "./dist/micro-api.module.js",
+  "unpkg": "./dist/micro-api.umd.js",
+  "types": "./dist/script.d.ts",
+  "scripts": {
+    "build": "microbundle",
+    "dev": "microbundle watch"
+  },
+  "files": [
+    "dist/"
+  ],
+  "dependencies": {
+    "axios": "^1.6.2",
+    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
+    "nanostores": "^0.9.5",
+    "react": "^18.2.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/lodash-es": "^4.17.12",
+    "@types/react": "^18.2.45",
+    "@typescript-eslint/eslint-plugin": "^5.59.11",
+    "@typescript-eslint/parser": "^5.59.11",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "microbundle": "^0.15.1"
+  }
+}

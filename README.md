@@ -7,7 +7,7 @@ Nano Query is a minimalistic and type strict library for creating custom query a
 You can install Nano Query via npm:
 
 ```bash
-npm install mini-query
+npm install nono-query-2
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ npm install mini-query
 First, import the `createQueryHook` function from Nano Query:
 
 ```ts
-import { createQueryHook } from "mini-query";
+import { createQueryHook } from "nono-query-2";
 ```
 
 Then, define a URL and a DTO (Data Transfer Object) using zod:
@@ -84,7 +84,7 @@ export const testHook = () => {
 Similar to the query hook, you can create a mutation hook:
 
 ```ts
-import { createMutateHook } from "mini-query";
+import { createMutateHook } from "nono-query-2";
 
 // Create a custom mutate hook using the createMutateHook function
 const useMutate = createMutateHook(url, {

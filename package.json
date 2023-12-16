@@ -1,6 +1,6 @@
 {
   "name": "nano-query-2",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Nano Query is a minimalistic and type strict library for creating custom query and mutate hooks in React. It leverages the power of nanostores, axios, and zod to provide a simple and efficient way to manage API requests and state in your application.",
   "author": "Mohammad Hosein Alijany",
   "keywords": [
@@ -23,7 +23,6 @@
   "module": "./dist/nano-query-2.module.js",
   "unpkg": "./dist/nano-query-2.umd.js",
   "types": "./dist/script.d.ts",
-  "typings": "./dist/script.d.ts",
   "scripts": {
     "build": "microbundle",
     "dev": "microbundle watch"

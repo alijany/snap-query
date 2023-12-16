@@ -1,2 +1,4 @@
-export * from "./service.mutate";
-export * from "./service.query";
+import { createMutateHook } from "./service.mutate";
+import { createQueryHook } from "./service.query";
+
+export { createMutateHook, createQueryHook }

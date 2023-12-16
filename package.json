@@ -17,7 +17,8 @@
   "type": "module",
   "exports": {
     "require": "./dist/nano-query-2.cjs",
-    "default": "./dist/nano-query-2.modern.js"
+    "default": "./dist/nano-query-2.modern.js",
+    "./*.d.ts": "./dist/*.d.ts"
   },
   "main": "./dist/nano-query-2.cjs",
   "module": "./dist/nano-query-2.module.js",

@@ -1,4 +1,4 @@
-import { template } from "lodash-es";
+import { template } from "lodash";
 
 export function replaceUrlParam(key: string, value?: object) {
   const templateString = key.replace(/:(\w+)/g, "${$1}");

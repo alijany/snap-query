@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react'
-import { queryHook } from './api'
+import { useEffect, useMemo, useState } from 'react'
+import { mutateHook, queryHook } from './api'
 import { z } from 'zod'
 
 
@@ -22,14 +22,38 @@ function App() {
 
   const queryResult = queryHook(queryParams)
 
-  console.log({ queryResult });
+
+  const mutateParams = useMemo(() => ({
+    pathParams: {
+      id: count
+    },
+    validator: z.object({
+      "userId": z.number(),
+      "id": z.number(),
+      "title": z.string(),
+      "completed": z.boolean(),
+
+    })
+  }), [count])
+
+  const [{ mutate }, mutateRes] = mutateHook(mutateParams)
+
+  useEffect(() => {
+    mutate(mutateParams)
+  }, [])
+
 
 
   return (
     <div>
       {queryResult.isError && 'error in query'}
-      <div>{queryResult.isLoading && 'loading'}</div>
+      <div>{queryResult.isLoading && 'mutate loading'}</div>
       <div>{queryResult.isSuccess && queryResult.data.title}</div>
+
+      {mutateRes.isError && 'error in mutate'}
+      <div>{mutateRes.isLoading && 'mutate loading'}</div>
+      <div>{mutateRes.isSuccess && mutateRes.data.title}</div>
+      
 
       <button onClick={() => setCount((count) => count + 1)}>
         count is {count}

@@ -20,7 +20,7 @@ const initialState = {
 
 export function createMutateHook<
   Req = unknown,
-  Res = unknown,
+  DefaultRes = unknown,
   U extends string = string,
 >(
   url: U,
@@ -29,14 +29,22 @@ export function createMutateHook<
     reqInterceptor = (req) => req,
     defaultValidator,
     ...defaultOptions
-  }: MutateOptions<Req> & { defaultValidator?: ZodType<Res, ZodTypeDef> }
+  }: MutateOptions<Req> & {
+    defaultValidator?: ZodType<DefaultRes, ZodTypeDef>;
+  } = {}
 ) {
   type Param = ExtractRouteParams<U>;
 
-  return function useMutate(
+  return function useMutate<
+    ValidatedRes,
+    Res = ValidatedRes extends void ? DefaultRes : ValidatedRes,
+    T extends Param | undefined = undefined,
+  >(
     mutateOptions: {
-      validator?: ZodType<Res, ZodTypeDef>;
-    } & AxiosRequestConfig<Req>
+      validator?: ZodType<ValidatedRes, ZodTypeDef>;
+    } & AxiosRequestConfig<Req> & {
+        pathParams?: T;
+      }
   ) {
     const [state, setState] = useState<FetchState<Res>>(initialState);
 
@@ -46,9 +54,9 @@ export function createMutateHook<
 
     const mutate = useCallback(
       async (
-        options: { req?: AxiosRequestConfig<Req> } & (Param extends void
-          ? { pathParams?: void }
-          : { pathParams: Param })
+        options: { req?: AxiosRequestConfig<Req> } & (T extends undefined
+          ? { pathParams: Param }
+          : { pathParams?: Param })
       ) => {
         setState(
           (state) =>
@@ -59,45 +67,52 @@ export function createMutateHook<
               isLoading: true,
             }) as FetchLoadingState<Res>
         );
-        const compiledUrl = replaceUrlParam(url, options.pathParams || {});
-        try {
-          const result = await axios<Res>({
-            signal: controller.current.signal,
-            ...defaultOptions,
-            ...mutateOptions,
-            ...options.req,
-            data: options.req?.data && reqInterceptor(options.req.data),
-            url: compiledUrl,
+        const compiledUrl = replaceUrlParam(
+          url,
+          options.pathParams ?? mutateOptions.params ?? {}
+        );
+
+        return axios<Res>({
+          signal: controller.current.signal,
+          ...defaultOptions,
+          ...mutateOptions,
+          ...options.req,
+          data: options.req?.data && reqInterceptor(options.req.data),
+          url: compiledUrl,
+        })
+          .then((result) => {
+            const validatorResult = (
+              mutateOptions.validator
+                ? mutateOptions.validator.parse(result.data)
+                : defaultValidator
+                  ? defaultValidator.parse(result.data)
+                  : result.data
+            ) as Res;
+            const newState = {
+              error: null,
+              data: validatorResult,
+              fetched: true,
+              isSuccess: true,
+              isLoading: false,
+              isError: false,
+            } as const;
+            setState(newState);
+            emitAtoms?.map((emitAtom) => emitAtom.set());
+            return newState;
+          })
+          .catch((error) => {
+            console.warn(error);
+            const newState = {
+              error: error as any,
+              data: null,
+              fetched: false,
+              isError: true,
+              isSuccess: false,
+              isLoading: false,
+            } as const;
+            setState(newState);
+            return newState;
           });
-          const validatorResult = mutateOptions.validator
-            ? mutateOptions.validator.parse(result.data)
-            : defaultValidator
-              ? defaultValidator.parse(result.data)
-              : result.data;
-          const newState = {
-            error: null,
-            data: validatorResult,
-            fetched: true,
-            isSuccess: true,
-            isLoading: false,
-            isError: false,
-          } as const;
-          setState(newState);
-          emitAtoms?.map((emitAtom) => emitAtom.set());
-          return newState;
-        } catch (error) {
-          console.warn(error);
-          const newState = {
-            error: error as any,
-            data: null,
-            fetched: false,
-            isError: true,
-            isSuccess: false,
-            isLoading: false,
-          } as const;
-          setState(newState);
-          return newState;
-        }
       },
       [mutateOptions]
     );

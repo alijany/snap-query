@@ -35,9 +35,12 @@ export function createQueryHook<
     defaultValidator?: ZodType<DefaultRes, ZodTypeDef>;
   } = {}
 ) {
-  return function useQuery<Res = Req extends void ? DefaultRes : Req>(
+  return function useQuery<
+    ValidatedRes,
+    Res = ValidatedRes extends void ? DefaultRes : ValidatedRes,
+  >(
     options: UseQueryParams<Req, ExtractRouteParams<U>> & {
-      validator?: ZodType<Res, ZodTypeDef>;
+      validator?: ZodType<ValidatedRes, ZodTypeDef>;
     }
   ) {
     const [state, setState] = useState<FetchState<Res>>(initialState);

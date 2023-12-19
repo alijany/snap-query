@@ -47,11 +47,15 @@
     }
   ],
   "devDependencies": {
+    "@size-limit/preset-small-lib": "^11.0.1",
     "@types/axios": "^0.14.0",
     "@types/lodash": "^4.14.202",
-    "@size-limit/preset-small-lib": "^11.0.1",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-prettier": "^5.0.1",
     "husky": "^8.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

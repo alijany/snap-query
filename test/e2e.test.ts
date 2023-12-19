@@ -2,7 +2,6 @@ import { createQueryHook } from '../src/query';
 import { createMutateHook } from '../src/mutate';
 
 describe('it', () => {
-
   describe('createQueryHook', () => {
     it('should be defined', () => {
       expect(createQueryHook).toBeDefined();

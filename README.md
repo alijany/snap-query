@@ -1,23 +1,23 @@
-# Mono Query
+# Snap Query
 
-Nano Query is a minimalistic and type strict library for creating custom query and mutate hooks in React. It leverages the power of nanostores, axios, and zod to provide a simple and efficient way to manage API requests and state in your application.
+Snap Query is a minimalistic and type strict library for creating custom query and mutate hooks in React. It leverages the power of nanostores, axios, and zod to provide a simple and efficient way to manage API requests and state in your application.
 
 ## Installation
 
-You can install Mono Query via npm:
+You can install Snap Query via npm:
 
 ```bash
-npm install mono-query
+npm install snap-query
 ```
 
 ## Usage
 
 ### Creating a Query Hook
 
-First, import the `createQueryHook` function from Mono Query:
+First, import the `createQueryHook` function from Snap Query:
 
 ```ts
-import { createQueryHook } from "mono-query";
+import { createQueryHook } from "snap-query";
 ```
 
 Then, define a URL and a DTO (Data Transfer Object) using zod:
@@ -84,7 +84,7 @@ export const testHook = () => {
 Similar to the query hook, you can create a mutation hook:
 
 ```ts
-import { createMutateHook } from "mono-query";
+import { createMutateHook } from "snap-query";
 
 // Create a custom mutate hook using the createMutateHook function
 const useMutate = createMutateHook(url, {

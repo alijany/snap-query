@@ -25,7 +25,7 @@
       "pre-commit": "eslint lint"
     }
   },
-  "name": "mono-query",
+  "name": "snap-query",
   "author": "MH.Alijany",
   "module": "dist/esm/index.js",
   "size-limit": [

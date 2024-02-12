@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -30,11 +30,11 @@
   "module": "dist/esm/index.js",
   "size-limit": [
     {
-      "path": "dist/nano-query-2.cjs.production.min.js",
+      "path": "dist/index.js",
       "limit": "10 KB"
     },
     {
-      "path": "dist/nano-query-2.esm.js",
+      "path": "dist/esm/index.js",
       "limit": "10 KB"
     }
   ],

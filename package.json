@@ -1,11 +1,10 @@
 {
-  "version": "0.4.0",
+  "version": "0.4.1",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "engines": {
     "node": ">=10"
@@ -27,7 +26,7 @@
   },
   "name": "snap-query",
   "author": "MH.Alijany",
-  "module": "dist/esm/index.js",
+  "module": "dist/index.js",
   "size-limit": [
     {
       "path": "dist/index.js",

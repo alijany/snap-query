@@ -24,9 +24,9 @@ function App() {
 
 
   const mutateParams = useMemo(() => ({
-    pathParams: {
-      id: count
-    },
+    // pathParams: {
+    //   id: count
+    // },
     validator: z.object({
       "userId": z.number(),
       "id": z.number(),
@@ -39,7 +39,11 @@ function App() {
   const [{ mutate }, mutateRes] = mutateHook(mutateParams)
 
   useEffect(() => {
-    mutate(mutateParams)
+    mutate({
+      pathParams: {
+        id: count
+      }
+      })
   }, [])
 
   return (

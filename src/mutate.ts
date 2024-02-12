@@ -54,9 +54,10 @@ export function createMutateHook<
 
     const mutate = useCallback(
       async (
-        options: { req?: AxiosRequestConfig<Req> } & (T extends undefined
-          ? { pathParams: Param }
-          : { pathParams?: Param })
+        options: AxiosRequestConfig<Req> & (T extends Param
+          ? { pathParams?: Param }
+          : { pathParams: Param }
+          )
       ) => {
         setState(
           (state) =>
@@ -76,8 +77,8 @@ export function createMutateHook<
           signal: controller.current.signal,
           ...defaultOptions,
           ...mutateOptions,
-          ...options.req,
-          data: options.req?.data && reqInterceptor(options.req.data),
+          ...options,
+          data: options?.data && reqInterceptor(options.data),
           url: compiledUrl,
         })
           .then((result) => {

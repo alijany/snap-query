@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -57,6 +57,12 @@
     "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   },
+  "keywords": [
+    "react",
+    "query",
+    "fetch",
+    "axios"
+  ],
   "dependencies": {
     "axios": "^1.6.2",
     "lodash": "^4.17.21",

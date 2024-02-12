@@ -42,8 +42,6 @@ function App() {
     mutate(mutateParams)
   }, [])
 
-
-
   return (
     <div>
       {queryResult.isError && 'error in query'}

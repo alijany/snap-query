@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosInstance, AxiosStatic } from 'axios';
 import { onSet } from 'nanostores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ZodType, ZodTypeDef } from 'zod';
@@ -34,7 +34,7 @@ export function createQueryHook<
   }: CreateQueryHookOptions<Req> & {
     defaultValidator?: ZodType<DefaultRes, ZodTypeDef>;
   } = {},
-  axiosInstance = axios
+  axiosInstance: AxiosInstance | AxiosStatic = axios
 ) {
   return function useQuery<
     ValidatedRes,

@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosStatic } from 'axios';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { ZodType, ZodTypeDef } from 'zod';
 import {
@@ -32,7 +32,7 @@ export function createMutateHook<
   }: MutateOptions<Req> & {
     defaultValidator?: ZodType<DefaultRes, ZodTypeDef>;
   } = {},
-  axiosInstance = axios
+  axiosInstance: AxiosInstance | AxiosStatic = axios
 ) {
   type Param = ExtractRouteParams<U>;
 

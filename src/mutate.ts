@@ -31,7 +31,8 @@ export function createMutateHook<
     ...defaultOptions
   }: MutateOptions<Req> & {
     defaultValidator?: ZodType<DefaultRes, ZodTypeDef>;
-  } = {}
+  } = {},
+  axiosInstance = axios
 ) {
   type Param = ExtractRouteParams<U>;
 
@@ -73,7 +74,7 @@ export function createMutateHook<
           options.pathParams ?? mutateOptions.params ?? {}
         );
 
-        return axios<Res>({
+        return axiosInstance<Res>({
           signal: controller.current.signal,
           ...defaultOptions,
           ...mutateOptions,

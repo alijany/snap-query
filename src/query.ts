@@ -33,7 +33,8 @@ export function createQueryHook<
     ...defaultOptions
   }: CreateQueryHookOptions<Req> & {
     defaultValidator?: ZodType<DefaultRes, ZodTypeDef>;
-  } = {}
+  } = {},
+  axiosInstance = axios
 ) {
   return function useQuery<
     ValidatedRes,
@@ -69,7 +70,7 @@ export function createQueryHook<
       controller.current = new AbortController();
 
       const compiledUrl = replaceUrlParam(url, options.pathParams ?? {});
-      axios<Res>({
+      axiosInstance<Res>({
         signal: controller.current.signal,
         ...defaultOptions,
         ...options,

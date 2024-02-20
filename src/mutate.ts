@@ -38,7 +38,7 @@ export function createMutateHook<
 
   return function useMutate<
     ValidatedRes,
-    Res = ValidatedRes extends void ? DefaultRes : ValidatedRes,
+    Res = ValidatedRes extends object ? ValidatedRes : DefaultRes,
     T extends Param | undefined = undefined,
   >(
     mutateOptions: {

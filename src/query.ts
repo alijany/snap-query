@@ -1,7 +1,7 @@
-import axios, { AxiosInstance, AxiosStatic } from 'axios';
-import { onSet } from 'nanostores';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ZodType, ZodTypeDef } from 'zod';
+import axios, { AxiosInstance, AxiosStatic } from "axios";
+import { onSet } from "nanostores";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ZodType, ZodTypeDef } from "zod";
 import {
   CreateQueryHookOptions,
   ExtractRouteParams,
@@ -9,8 +9,8 @@ import {
   FetchState,
   UseQueryParams,
   UseQueryReturn,
-} from './model';
-import { replaceUrlParam } from './utils';
+} from "./model";
+import { replaceUrlParam } from "./utils";
 
 const initialState = {
   data: null,
@@ -24,7 +24,7 @@ const initialState = {
 export function createQueryHook<
   Req = unknown,
   DefaultRes = unknown,
-  U extends string = string,
+  U extends string = string
 >(
   url: U,
   {
@@ -38,7 +38,7 @@ export function createQueryHook<
 ) {
   return function useQuery<
     ValidatedRes,
-    Res = ValidatedRes extends void ? DefaultRes : ValidatedRes,
+    Res = ValidatedRes extends object ? ValidatedRes : DefaultRes
   >(
     options: UseQueryParams<Req, ExtractRouteParams<U>> & {
       validator?: ZodType<ValidatedRes, ZodTypeDef>;
@@ -64,7 +64,7 @@ export function createQueryHook<
             isError: false,
             error: null,
             isLoading: true,
-          }) as FetchLoadingState<Res>
+          } as FetchLoadingState<Res>)
       );
 
       controller.current = new AbortController();
@@ -81,8 +81,8 @@ export function createQueryHook<
             options.validator
               ? options.validator.parse(result.data)
               : defaultValidator
-                ? defaultValidator.parse(result.data)
-                : result.data
+              ? defaultValidator.parse(result.data)
+              : result.data
           ) as Res;
           setState({
             error: null,

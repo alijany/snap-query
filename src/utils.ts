@@ -1,8 +1,6 @@
-import { template } from 'lodash-es';
-
-export function replaceUrlParam(key: string, value?: object) {
-  const templateString = key.replace(/:(\w+)/g, '${$1}');
-  const compile = template(templateString);
-
-  return compile(value);
+export function replaceUrlParam(url: string, params: any): string {
+  return url.replace(/:\w+/g, (match) => {
+    const param = match.slice(1); // remove the colon
+    return params[param] || match; // replace with parameter value or keep original
+  });
 }

@@ -2,6 +2,14 @@
 
 Snap Query is a minimalistic and type strict library for creating custom query and mutate hooks in React. It leverages the power of nanostores, axios, and zod to provide a simple and efficient way to manage API requests and state in your application.
 
+
+## Features
+ - Atomic design
+ - Easy to use data fetching hooks
+ - Validation support with Zod
+ - Lazy loading and Suspense integration
+ - Configurable logging levels
+
 ## Installation
 
 You can install Snap Query via npm:
@@ -44,7 +52,7 @@ const useQuery = createQueryHook(url, {
     // List of nanostores atoms to watch and trigger refetch when they change
     watchAtoms: [],
     // Additional axios request config options can be provided here
-    // ...
+    // axios params ...
 })
 ```
 ### Using the Query Hook
@@ -93,6 +101,7 @@ const useMutate = createMutateHook(url, {
     // List of nanostores atoms to trigger query hook when they change to update them
     emitAtoms: [],
     // Additional axios request config options can be provided here
+    // axios params ...
 })
 ```
 
@@ -130,8 +139,73 @@ export const testMutate = () => {
 }
 ```
 
-## Contributing
 
+## Lazy Loading and Suspense
+
+The new feature allows you to use React's Suspense component with Snap Query. This helps in deferring the loading of components until they are needed and showing a fallback UI while the component is being loaded and Loading components in SSR mode.
+
+### Example:
+
+Here is an example of how to use the new lazy loading and Suspense feature.
+
+Similar to the query hook, you can create a lazy hook:
+
+```ts
+import { createMutateHook } from "snap-query";
+
+// Create a custom mutate hook using the createMutateHook function
+export const useLazyUserQuery = createLazyHook(url, {
+    // Default validator of the response body
+    defaultValidator: dto,
+    // Additional axios request config options can be provided here
+    // axios params ...
+})
+```
+
+And use it in your components:
+
+```tsx
+export const UserDataComponent = ({ resource }: { resource: LazyResponse<ResType> }) => {
+  const res = resource.read();
+
+  if (res?.error) {
+    return <div>Error</div>
+  }
+
+  return (
+    <div>
+      <h1>{res?.data?.id}</h1>
+      <p>{res?.data?.title}</p>
+    </div>
+  );
+};
+```
+
+```tsx
+// Define a test component to use the custom lazy hook
+const App = () => {
+  const [count, setCount] = React.useState(1);
+  
+  // Create memoized params for useQuery to avoid unnecessary rerenders
+  const queryParams = useMemo(() => ({
+    pathParams: {
+      id: count
+    },
+    validator: ResDto
+    // Additional axios request config options can be provided here
+  }), [count]);
+  
+  const lazyResult = useLazyUserQuery(queryParams);
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UserDataComponent resource={lazyResult} />
+    </Suspense>
+  );
+};
+```
+
+## Contributing
 Pull requests are welcome. Please make sure to update tests as appropriate.
 
 ## License

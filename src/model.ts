@@ -5,31 +5,33 @@ import type { ZodError } from 'zod';
 export type ExtractRouteParams<T> = string extends T
   ? Record<string, string>
   : T extends `${'http' | 'https'}://${string}/${infer Rest}`
-    ? ExtractRouteParams<Rest>
-    : T extends `${string}/:${infer Param}/${infer Rest}`
-      ? { [K in Param | keyof ExtractRouteParams<Rest>]: string | number }
-      : T extends `${string}/:${infer Param}` | `${string}:${infer Param}`
-        ? { [K in Param]: string | number }
-        : void;
+  ? ExtractRouteParams<Rest>
+  : T extends `${string}/:${infer Param}/${infer Rest}`
+  ? { [K in Param | keyof ExtractRouteParams<Rest>]: string | number }
+  : T extends `${string}/:${infer Param}` | `${string}:${infer Param}`
+  ? { [K in Param]: string | number }
+  : void;
 
 export type MutateOptions<Req> = AxiosRequestConfig<Req> & {
   emitAtoms?: WritableAtom<void>[];
   reqInterceptor?: (req: Req) => any;
+  logLevel?: 'debug' | 'none';
 };
 
 export type CreateQueryHookOptions<Req> = AxiosRequestConfig<Req> & {
   watchAtoms?: WritableAtom<void>[];
-};
+  logLevel?: 'debug' | 'none';
+}
 
 export type FetchErrorState<Res> = (
   | {
-      data: Res;
-      fetched: true;
-    }
+    data: Res;
+    fetched: true;
+  }
   | {
-      data: null;
-      fetched: false;
-    }
+    data: null;
+    fetched: false;
+  }
 ) & {
   error: AxiosError | ZodError;
   isLoading: false;
@@ -48,15 +50,15 @@ export type FetchSuccessState<Res> = {
 
 export type FetchLoadingState<Res> = (
   | {
-      data: Res;
-      fetched: true;
-      isSuccess: true;
-    }
+    data: Res;
+    fetched: true;
+    isSuccess: true;
+  }
   | {
-      data: null;
-      fetched: false;
-      isSuccess: false;
-    }
+    data: null;
+    fetched: false;
+    isSuccess: false;
+  }
 ) & {
   error: null;
   isLoading: true;
@@ -80,6 +82,7 @@ export type FetchState<Res> =
 
 export type UseQueryReturn<Res> = FetchState<Res> & {
   refresh: () => Promise<void>;
+  cancel: () => void
 };
 
 export type UseQueryParams<Req, Param> = AxiosRequestConfig<Req> &

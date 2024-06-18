@@ -22,32 +22,35 @@ const initialState = {
 } as const;
 
 export function createQueryHook<
-  Req = unknown,
-  DefaultRes = unknown,
+  DefReq = unknown,
+  DefRes = unknown,
   U extends string = string
 >(
   url: U,
   {
     watchAtoms,
     defaultValidator,
+    logLevel = 'none',
     ...defaultOptions
-  }: CreateQueryHookOptions<Req> & {
-    defaultValidator?: ZodType<DefaultRes, ZodTypeDef>;
+  }: CreateQueryHookOptions<DefReq> & {
+    defaultValidator?: ZodType<DefRes, ZodTypeDef>;
   } = {},
   axiosInstance: AxiosInstance | AxiosStatic = axios
 ) {
   return function useQuery<
-    ValidatedRes,
-    Res = ValidatedRes extends object ? ValidatedRes : DefaultRes
+    Res,
   >(
-    options: UseQueryParams<Req, ExtractRouteParams<U>> & {
-      validator?: ZodType<ValidatedRes, ZodTypeDef>;
+    options: UseQueryParams<DefReq, ExtractRouteParams<U>> & {
+      validator?: ZodType<Res, ZodTypeDef>;
     }
   ) {
-    const [state, setState] = useState<FetchState<Res>>(initialState);
+    type ResType = Res extends object ? Res : DefRes
+
+    const [state, setState] = useState<FetchState<ResType>>(initialState);
+
     const controller = useRef(new AbortController());
 
-    const refresh = useCallback(() => {
+    const fetch = useCallback(() => {
       if (options.skip) {
         setState((state) => ({
           ...state,
@@ -59,18 +62,18 @@ export function createQueryHook<
 
       setState(
         (state) =>
-          ({
-            ...state,
-            isError: false,
-            error: null,
-            isLoading: true,
-          } as FetchLoadingState<Res>)
+        ({
+          ...state,
+          isError: false,
+          error: null,
+          isLoading: true,
+        } as FetchLoadingState<ResType>)
       );
 
       controller.current = new AbortController();
 
       const compiledUrl = replaceUrlParam(url, options.pathParams ?? {});
-      axiosInstance<Res>({
+      axiosInstance<ResType>({
         signal: controller.current.signal,
         ...defaultOptions,
         ...options,
@@ -81,9 +84,9 @@ export function createQueryHook<
             options.validator
               ? options.validator.parse(result.data)
               : defaultValidator
-              ? defaultValidator.parse(result.data)
-              : result.data
-          ) as Res;
+                ? defaultValidator.parse(result.data)
+                : result.data
+          ) as ResType;
           setState({
             error: null,
             data: validatorResult,
@@ -94,7 +97,8 @@ export function createQueryHook<
           });
         })
         .catch((error) => {
-          console.warn({ error });
+          if (logLevel === 'debug')
+            console.warn('snap-query', JSON.stringify({ error }, undefined, 2));
           setState(() => ({
             error: error as any,
             data: null,
@@ -107,30 +111,31 @@ export function createQueryHook<
     }, [options]);
 
     useEffect(() => {
-      refresh();
+      fetch();
       return () => {
         if (state.fetched) controller.current.abort();
       };
-    }, [refresh]);
+    }, [fetch]);
 
     useEffect(() => {
       const unsubscribeCallbacks = watchAtoms?.map((refreshAtom) =>
         onSet(refreshAtom, ({ abort }) => {
-          refresh();
+          fetch();
           abort();
         })
       );
       return () => {
         unsubscribeCallbacks?.map((unsubscribe) => unsubscribe());
       };
-    }, [refresh]);
+    }, [fetch]);
 
     return useMemo(
       () => ({
-        refresh,
+        cancel: () => controller.current.abort(),
+        refresh: fetch,
         ...state,
       }),
-      [state]
-    ) as UseQueryReturn<Res>;
+      [state, fetch]
+    ) as UseQueryReturn<ResType>;
   };
 }

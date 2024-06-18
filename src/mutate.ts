@@ -19,34 +19,37 @@ const initialState = {
 } as const;
 
 export function createMutateHook<
-  Req = unknown,
-  DefaultRes = unknown,
+  DefReq = unknown,
+  DefRes = unknown,
   U extends string = string,
 >(
   url: U,
   {
     emitAtoms,
     reqInterceptor = (req) => req,
+    logLevel = 'none',
     defaultValidator,
     ...defaultOptions
-  }: MutateOptions<Req> & {
-    defaultValidator?: ZodType<DefaultRes, ZodTypeDef>;
+  }: MutateOptions<DefReq> & {
+    defaultValidator?: ZodType<DefRes, ZodTypeDef>;
   } = {},
   axiosInstance: AxiosInstance | AxiosStatic = axios
 ) {
   type Param = ExtractRouteParams<U>;
 
+
   return function useMutate<
     ValidatedRes,
-    Res = ValidatedRes extends object ? ValidatedRes : DefaultRes,
-    T extends Param | undefined = undefined,
+    Res = ValidatedRes extends object ? ValidatedRes : DefRes,
+    T extends Param | undefined = undefined
   >(
     mutateOptions: {
       validator?: ZodType<ValidatedRes, ZodTypeDef>;
-    } & AxiosRequestConfig<Req> & {
-        pathParams?: T;
-      }
+    } & AxiosRequestConfig<DefReq> & { pathParams?: T }
   ) {
+
+    type FP = Param extends void ? { pathParams?: void } : (T extends undefined ? { pathParams: Param } : { pathParams?: Param })
+
     const [state, setState] = useState<FetchState<Res>>(initialState);
 
     const controller = useRef(new AbortController());
@@ -55,10 +58,7 @@ export function createMutateHook<
 
     const mutate = useCallback(
       async (
-        options: AxiosRequestConfig<Req> & (T extends Param
-          ? { pathParams?: Param }
-          : { pathParams: Param }
-          )
+        options: AxiosRequestConfig<DefReq> & FP
       ) => {
         setState(
           (state) =>
@@ -103,7 +103,8 @@ export function createMutateHook<
             return newState;
           })
           .catch((error) => {
-            console.warn(error);
+            if (logLevel === 'debug')
+              console.warn('snap-query', JSON.stringify({ error }, undefined, 2));
             const newState = {
               error: error as any,
               data: null,

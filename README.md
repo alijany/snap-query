@@ -2,7 +2,6 @@
 
 Snap Query is a minimalistic and type-safe library for creating custom query and mutation hooks in React. It leverages the power of nanostores, axios, and zod to provide a simple and efficient way to manage API requests and state in your application.
 
-
 ## Table of Contents
 
 1. [Features](#features)
@@ -17,7 +16,6 @@ Snap Query is a minimalistic and type-safe library for creating custom query and
 4. [Contributing](#contributing)
 5. [License](#license)
 
-
 ## Features
 
 - **Atomic design**: Designed for modular and maintainable code.
@@ -25,7 +23,6 @@ Snap Query is a minimalistic and type-safe library for creating custom query and
 - **Validation**: Uses Zod for response data validation.
 - **Lazy loading**: Supports React Suspense for deferred loading.
 - **Configurable logging**: Control logging levels for debugging.
-
 
 ## Installation
 
@@ -39,7 +36,7 @@ npm install snap-query
 
 ### Overview
 
-Snap Query provides a set of hooks for managing API requests and state in React applications. These hooks are built with type safety and simplicity in mind, ensuring that your data fetching and mutation logic is clean and maintainable and reusable.
+Snap Query provides a set of hooks for managing API requests and state in React applications. These hooks are built with type safety and simplicity in mind, ensuring that your data fetching and mutation logic is clean, maintainable, and reusable.
 
 #### Hooks Provided:
 
@@ -72,20 +69,19 @@ const dto = z.object({
 Create the query hook:
 
 ```ts
-const useQuery = = createQueryHook(
+const useQuery = createQueryHook(
   url,
   {
     defaultValidator: dto,   // (Optional) Validator for response data
     watchAtoms: [],          // (Optional) Atoms to watch for refetching
-    logLevel: 'debug'        // (Optional) default to none
+    logLevel: 'debug',       // (Optional) default to 'none'
     // Additional axios request config options can be provided here
     // method: 'post',
     // baseURL: myBaseUrl,
   },
-  axiosInstance,  // (Optional) custom axios instance
+  axiosInstance  // (Optional) custom axios instance
 );
 ```
-
 
 ### Using the Query Hook
 
@@ -105,15 +101,15 @@ export const TestComponent = () => {
 
     const queryResult = useQuery(params);
 
-    useEffect(() => {
-        if (queryResult.isSuccess) {
-            console.log(queryResult.data.name);
-        }
-    }, [queryResult]);
+    if (queryResult.isError) {
+        return (
+            <div>error</div>
+        );
+    }
 
     return (
         <div>
-            {queryResult.isSuccess ? 'Loading or error ...' : queryResult.data.name}
+            {queryResult.isLoading ? 'Loading...' : queryResult.data.name}
         </div>
     );
 };
@@ -134,13 +130,13 @@ const useMutate = createMutateHook(
   url,
   {
     defaultValidator: dto,   // (Optional) Validator for response data
-    logLevel: 'debug'        // (Optional) default to none
+    logLevel: 'debug',       // (Optional) default to 'none'
     emitAtoms: [],           // (Optional) Atoms to trigger updates
     // Additional axios request config options can be provided here
     // method: 'post',
     // baseURL: myBaseUrl,
   },
-  axiosInstance,
+  axiosInstance  // (Optional) custom axios instance
 );
 ```
 
@@ -149,24 +145,32 @@ const useMutate = createMutateHook(
 Use the mutation hook in your components:
 
 ```ts
-import React, { useEffect } from "react";
+import React from "react";
 
 export const TestMutate = () => {
     const [{ cancel, mutate, reset }, queryResult] = useMutate({
-      // Additional axios request config options can be provided here
-      // method: 'post',
-      // baseURL: myBaseUrl,
+        // Additional axios request config options can be provided here
+        // method: 'post',
+        // baseURL: myBaseUrl,
     });
 
     const onClick = () => {
-        mutate({pathParams: {myPathParam: 'test'}});
+        mutate({ pathParams: { myPathParam: 'test' } });
     };
 
+    if (queryResult.isError) {
+        return (
+            <div>error</div>
+        );
+    }
+
     return (
-        <button onClick={onClick}>mutate</button>
-        <div>
-            {queryResult.isSuccess ? 'Loading or error...' : queryResult.data.name}
-        </div>
+        <>
+            <button onClick={onClick}>Mutate</button>
+            <div>
+                {queryResult.isLoading ? 'Loading...' : queryResult.data.name}
+            </div>
+        </>
     );
 };
 ```
@@ -186,12 +190,12 @@ const useLazyUserQuery = createLazyHook(
   url,
   {
     defaultValidator: dto,   // (Optional) Validator for response data
-    logLevel: 'debug'        // (Optional) default to none
+    logLevel: 'debug',       // (Optional) default to 'none'
     // Additional axios request config options can be provided here
     // method: 'post',
     // baseURL: myBaseUrl,
   },
-  axiosInstance,
+  axiosInstance  // (Optional) custom axios instance
 );
 ```
 
@@ -222,7 +226,9 @@ const App = () => {
     const queryParams = useMemo(() => ({
         pathParams: { id: count },
         validator: ResDto,
-        // Additional axios request config options
+        // Additional axios request config options can be provided here
+        // method: 'post',
+        // baseURL: myBaseUrl,
     }), [count]);
 
     const lazyResult = useLazyUserQuery(queryParams);

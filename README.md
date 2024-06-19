@@ -1,24 +1,51 @@
 # Snap Query
 
-Snap Query is a minimalistic and type strict library for creating custom query and mutate hooks in React. It leverages the power of nanostores, axios, and zod to provide a simple and efficient way to manage API requests and state in your application.
+Snap Query is a minimalistic and type-safe library for creating custom query and mutation hooks in React. It leverages the power of nanostores, axios, and zod to provide a simple and efficient way to manage API requests and state in your application.
+
+
+## Table of Contents
+
+1. [Features](#features)
+2. [Installation](#installation)
+3. [Usage](#usage)
+    - [Overview](#overview)
+    - [Creating a Query Hook](#creating-a-query-hook)
+    - [Using the Query Hook](#using-the-query-hook)
+    - [Creating a Mutation Hook](#creating-a-mutation-hook)
+    - [Using the Mutation Hook](#using-the-mutation-hook)
+    - [Lazy Loading and Suspense](#lazy-loading-and-suspense)
+4. [Contributing](#contributing)
+5. [License](#license)
 
 
 ## Features
- - Atomic design
- - Easy to use data fetching hooks
- - Validation support with Zod
- - Lazy loading and Suspense integration
- - Configurable logging levels
+
+- **Atomic design**: Designed for modular and maintainable code.
+- **Easy to use**: Simplifies data fetching with custom hooks.
+- **Validation**: Uses Zod for response data validation.
+- **Lazy loading**: Supports React Suspense for deferred loading.
+- **Configurable logging**: Control logging levels for debugging.
+
 
 ## Installation
 
-You can install Snap Query via npm:
+Install Snap Query via npm:
 
 ```bash
 npm install snap-query
 ```
 
 ## Usage
+
+### Overview
+
+Snap Query provides a set of hooks for managing API requests and state in React applications. These hooks are built with type safety and simplicity in mind, ensuring that your data fetching and mutation logic is clean and maintainable and reusable.
+
+#### Hooks Provided:
+
+1. **Query Hook**: Used for fetching data from an API endpoint.
+2. **Mutation Hook**: Used for sending data to an API endpoint (e.g., creating or updating resources).
+3. **Lazy Hook**: Used for fetching data with React Suspense, allowing for deferred loading of components.
 
 ### Creating a Query Hook
 
@@ -28,186 +55,190 @@ First, import the `createQueryHook` function from Snap Query:
 import { createQueryHook } from "snap-query";
 ```
 
-Then, define a URL and a DTO (Data Transfer Object) using zod:
+Define a URL and a DTO (Data Transfer Object) using Zod:
 
 ```ts
-import { z } from "zod"
+import { z } from "zod";
 
-// Define the URL for the API endpoint, with a parameter placeholder
-const url = '/test/:myPathParam'
+// Define the URL for the API endpoint with a parameter placeholder
+const url = '/test/:myPathParam';
 
-// Define the structure of the response data using zod for validation
+// Define the structure of the response data using Zod for validation
 const dto = z.object({
     name: z.string(),
-})
+});
 ```
 
-Finally, create the query hook:
+Create the query hook:
 
 ```ts
-// Create a custom query hook using the createQueryHook function
-const useQuery = createQueryHook(url, {
-    // Default validator of the response body
-    defaultValidator: dto,
-    // List of nanostores atoms to watch and trigger refetch when they change
-    watchAtoms: [],
+const useQuery = = createQueryHook(
+  url,
+  {
+    defaultValidator: dto,   // (Optional) Validator for response data
+    watchAtoms: [],          // (Optional) Atoms to watch for refetching
+    logLevel: 'debug'        // (Optional) default to none
     // Additional axios request config options can be provided here
-    // axios params ...
-})
+    // method: 'post',
+    // baseURL: myBaseUrl,
+  },
+  axiosInstance,  // (Optional) custom axios instance
+);
 ```
+
+
 ### Using the Query Hook
 
-Now you can use the query hook in your components:
+Use the query hook in your components:
 
 ```ts
-import React, { useEffect } from "react"
+import React, { useEffect } from "react";
 
-// Define a test hook to use the custom query hook
-export const testHook = () => {
-    // Create memoized params for useQuery to avoid unnecessary rerenders
+export const TestComponent = () => {
     const params = React.useMemo(() => ({
-        pathParams: {
-            myPathParam: 'test' // Define path parameters for the request
-        },
-        // This option disables the query hook until it becomes false
+        pathParams: { myPathParam: 'test' },
         skip: false,
-        // Additional axios request config options can be provided here
-    }), [])
+        // Additional axios request config options
+        // method: 'post',
+        // baseURL: myBaseUrl,
+    }), []);
 
-    // Use the custom query hook with the memoized params
-    const queryResult = useQuery(params)
+    const queryResult = useQuery(params);
 
-    // Perform an action with the query result
     useEffect(() => {
-        // If the request was successful, log the name from the response data
         if (queryResult.isSuccess) {
-            console.log(queryResult.data.name)
+            console.log(queryResult.data.name);
         }
-    }, [queryResult])
-}
+    }, [queryResult]);
+
+    return (
+        <div>
+            {queryResult.isSuccess ? 'Loading or error ...' : queryResult.data.name}
+        </div>
+    );
+};
 ```
 
 ### Creating a Mutation Hook
 
-Similar to the query hook, you can create a mutation hook:
+Import the `createMutateHook` function:
 
 ```ts
 import { createMutateHook } from "snap-query";
+```
 
-// Create a custom mutate hook using the createMutateHook function
-const useMutate = createMutateHook(url, {
-    // Default validator of the response body
-    defaultValidator: dto,
-    // List of nanostores atoms to trigger query hook when they change to update them
-    emitAtoms: [],
+Create the mutation hook:
+
+```ts
+const useMutate = createMutateHook(
+  url,
+  {
+    defaultValidator: dto,   // (Optional) Validator for response data
+    logLevel: 'debug'        // (Optional) default to none
+    emitAtoms: [],           // (Optional) Atoms to trigger updates
     // Additional axios request config options can be provided here
-    // axios params ...
-})
+    // method: 'post',
+    // baseURL: myBaseUrl,
+  },
+  axiosInstance,
+);
 ```
 
 ### Using the Mutation Hook
 
-And use it in your components:
+Use the mutation hook in your components:
 
 ```ts
-// Define a test hook to use the custom mutate hook
-export const testMutate = () => {
-    // Create memoized params for useQuery to avoid unnecessary rerenders
-    const params = React.useMemo(() => ({
-        // Additional axios request config options can be provided here
-    }), [])
+import React, { useEffect } from "react";
 
-    // Use the custom mutate hook with the memoized params
-    const [{ cancel, mutate, reset }, queryResult] = useMutate(params)
+export const TestMutate = () => {
+    const [{ cancel, mutate, reset }, queryResult] = useMutate({
+      // Additional axios request config options can be provided here
+      // method: 'post',
+      // baseURL: myBaseUrl,
+    });
 
-    useEffect(() => {
-        // Trigger a mutation with the specified path parameters
-        mutate({
-            pathParams: {
-                myPathParam: 'test' // Define path parameters for the mutation
-            },
-        })
-    }, [])
+    const onClick = () => {
+        mutate({pathParams: {myPathParam: 'test'}});
+    };
 
-    // Perform an action with the mutation result
-    useEffect(() => {
-        // If the request was successful, log the name from the response data
-        if (queryResult.isSuccess) {
-            console.log(queryResult.data.name)
-        }
-    }, [queryResult])
-}
-```
-
-
-## Lazy Loading and Suspense
-
-The new feature allows you to use React's Suspense component with Snap Query. This helps in deferring the loading of components until they are needed and showing a fallback UI while the component is being loaded and Loading components in SSR mode.
-
-### Example:
-
-Here is an example of how to use the new lazy loading and Suspense feature.
-
-Similar to the query hook, you can create a lazy hook:
-
-```ts
-import { createMutateHook } from "snap-query";
-
-// Create a custom mutate hook using the createMutateHook function
-export const useLazyUserQuery = createLazyHook(url, {
-    // Default validator of the response body
-    defaultValidator: dto,
-    // Additional axios request config options can be provided here
-    // axios params ...
-})
-```
-
-And use it in your components:
-
-```tsx
-export const UserDataComponent = ({ resource }: { resource: LazyResponse<ResType> }) => {
-  const res = resource.read();
-
-  if (res?.error) {
-    return <div>Error</div>
-  }
-
-  return (
-    <div>
-      <h1>{res?.data?.id}</h1>
-      <p>{res?.data?.title}</p>
-    </div>
-  );
+    return (
+        <button onClick={onClick}>mutate</button>
+        <div>
+            {queryResult.isSuccess ? 'Loading or error...' : queryResult.data.name}
+        </div>
+    );
 };
 ```
 
-```tsx
-// Define a test component to use the custom lazy hook
-const App = () => {
-  const [count, setCount] = React.useState(1);
-  
-  // Create memoized params for useQuery to avoid unnecessary rerenders
-  const queryParams = useMemo(() => ({
-    pathParams: {
-      id: count
-    },
-    validator: ResDto
-    // Additional axios request config options can be provided here
-  }), [count]);
-  
-  const lazyResult = useLazyUserQuery(queryParams);
+### Lazy Loading and Suspense
 
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <UserDataComponent resource={lazyResult} />
-    </Suspense>
-  );
+Snap Query supports React's Suspense for deferred loading of components.
+
+#### Example:
+
+Create a lazy hook:
+
+```ts
+import { createLazyHook } from "snap-query";
+
+const useLazyUserQuery = createLazyHook(
+  url,
+  {
+    defaultValidator: dto,   // (Optional) Validator for response data
+    logLevel: 'debug'        // (Optional) default to none
+    // Additional axios request config options can be provided here
+    // method: 'post',
+    // baseURL: myBaseUrl,
+  },
+  axiosInstance,
+);
+```
+
+Use it in your components:
+
+```tsx
+import React, { Suspense, useMemo } from "react";
+import { LazyResponse } from "snap-query";
+
+const UserDataComponent = ({ resource }: { resource: LazyResponse<ResType> }) => {
+    const res = resource.read();
+
+    if (res?.error) {
+        return <div>Error</div>;
+    }
+
+    return (
+        <div>
+            <h1>{res?.data?.id}</h1>
+            <p>{res?.data?.title}</p>
+        </div>
+    );
+};
+
+const App = () => {
+    const [count, setCount] = React.useState(1);
+
+    const queryParams = useMemo(() => ({
+        pathParams: { id: count },
+        validator: ResDto,
+        // Additional axios request config options
+    }), [count]);
+
+    const lazyResult = useLazyUserQuery(queryParams);
+
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <UserDataComponent resource={lazyResult} />
+        </Suspense>
+    );
 };
 ```
 
 ## Contributing
-Pull requests are welcome. Please make sure to update tests as appropriate.
+
+Pull requests are welcome. Please ensure you update tests as appropriate.
 
 ## License
-This project is licensed under the MIT License.
 
+This project is licensed under the MIT License.

@@ -50,7 +50,14 @@ export function createLazyHook<
 
 
     const fetchPromise = useMemo(() => {
-
+      if (options.skip) {
+        return {
+          read() {
+            return undefined
+          },
+        }
+      }
+      
       const compiledUrl = replaceUrlParam(url, options.pathParams ?? {});
 
       return wrapPromise(axiosInstance<ResType>({

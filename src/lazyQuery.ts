@@ -1,8 +1,7 @@
-import axios, { AxiosInstance, AxiosStatic } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosStatic } from "axios";
 import { useMemo } from "react";
 import type { ZodType, ZodTypeDef } from "zod";
 import {
-  CreateQueryHookOptions,
   ExtractRouteParams,
   UseQueryParams
 } from "./model";
@@ -11,14 +10,22 @@ import { replaceUrlParam, wrapPromise } from "./utils";
 export type LazyResponse<Res> = {
   read(): {
     isError: false,
+    isSkip: false,
     isSuccess: true,
     error: null,
     data: Res
   } | {
-    isError: true,
+    isError: false,
+    isSkip: true,
     isSuccess: false,
     error: any,
-    data: null
+    data: Res | null
+  } | {
+    isError: true,
+    isSkip: false,
+    isSuccess: false,
+    error: any,
+    data: Res | null
   } | undefined
 }
 
@@ -33,11 +40,11 @@ export function createLazyHook<
 >(
   url: U,
   {
-    watchAtoms,
     defaultValidator,
     logLevel = 'none',
     ...defaultOptions
-  }: CreateQueryHookOptions<DefReq> & {
+  }: AxiosRequestConfig<DefReq> & {
+    logLevel?: 'debug' | 'none';
     defaultValidator?: ZodType<DefRes, ZodTypeDef>;
   } = {},
   axiosInstance: AxiosInstance | AxiosStatic = axios
@@ -47,6 +54,7 @@ export function createLazyHook<
   >(
     options: UseQueryParams<DefReq, ExtractRouteParams<U>> & {
       validator?: ZodType<Res, ZodTypeDef>;
+      defaultValue?: Res extends object ? Res : DefRes
       delay?: number; // Add delay option
     }
   ) {
@@ -56,7 +64,13 @@ export function createLazyHook<
       if (options.skip) {
         return {
           read() {
-            return undefined
+            return {
+              isError: false,
+              isSuccess: false,
+              isSkip: true,
+              error: null,
+              data: options.defaultValue ?? null
+            }
           },
         }
       }
@@ -83,9 +97,10 @@ export function createLazyHook<
             ) as ResType;
             return {
               isError: false,
+              isSkip: false,
               isSuccess: true,
               error: null,
-              data: validatorResult
+              data: validatorResult ?? options.defaultValue
             }
           })
           .catch((error) => {
@@ -93,9 +108,10 @@ export function createLazyHook<
               console.warn('snap-query', JSON.stringify({ error }, undefined, 2));
             return {
               isError: true,
+              isSkip: false,
               isSuccess: false,
               error,
-              data: null
+              data: options.defaultValue ?? null
             }
           });
       };

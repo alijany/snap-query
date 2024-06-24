@@ -72,7 +72,7 @@ export function createLazyHook<
               data: options.defaultValue ?? null
             }
           },
-        } as LazyResponse<Res>
+        } as LazyResponse<ResType>
       }
 
       const compiledUrl = replaceUrlParam(url, options.pathParams ?? {});

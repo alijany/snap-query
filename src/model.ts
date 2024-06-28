@@ -1,5 +1,4 @@
 import type { AxiosError, AxiosRequestConfig } from 'axios';
-import type { WritableAtom } from 'nanostores';
 import type { ZodError } from 'zod';
 
 export type ExtractRouteParams<T> = string extends T
@@ -13,13 +12,11 @@ export type ExtractRouteParams<T> = string extends T
   : void;
 
 export type MutateOptions<Req> = AxiosRequestConfig<Req> & {
-  emitAtoms?: WritableAtom<void>[];
   reqInterceptor?: (req: Req) => any;
   logLevel?: 'debug' | 'none';
 };
 
 export type CreateQueryHookOptions<Req> = AxiosRequestConfig<Req> & {
-  watchAtoms?: WritableAtom<void>[];
   logLevel?: 'debug' | 'none';
 }
 

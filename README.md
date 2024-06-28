@@ -69,11 +69,10 @@ const dto = z.object({
 Create the query hook:
 
 ```ts
-const useQuery = createQueryHook(
+const [useQuery,  emitQuery] = createQueryHook(
   url,
   {
     defaultValidator: dto,   // (Optional) Validator for response data
-    watchAtoms: [],          // (Optional) Atoms to watch for refetching
     logLevel: 'debug',       // (Optional) default to 'none'
     // Additional axios request config options can be provided here
     // method: 'post',
@@ -131,7 +130,6 @@ const useMutate = createMutateHook(
   {
     defaultValidator: dto,   // (Optional) Validator for response data
     logLevel: 'debug',       // (Optional) default to 'none'
-    emitAtoms: [],           // (Optional) Atoms to trigger updates
     // Additional axios request config options can be provided here
     // method: 'post',
     // baseURL: myBaseUrl,

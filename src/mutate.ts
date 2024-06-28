@@ -25,18 +25,18 @@ export function createMutateHook<
 >(
   url: U,
   {
-    emitAtoms,
     reqInterceptor = (req) => req,
     logLevel = 'none',
+    subscribers,
     defaultValidator,
     ...defaultOptions
   }: MutateOptions<DefReq> & {
     defaultValidator?: ZodType<DefRes, ZodTypeDef>;
+    subscribers?: ((data: any) => void)[]
   } = {},
   axiosInstance: AxiosInstance | AxiosStatic = axios
 ) {
   type Param = ExtractRouteParams<U>;
-
 
   return function useMutate<
     ValidatedRes,
@@ -45,6 +45,7 @@ export function createMutateHook<
   >(
     mutateOptions: {
       validator?: ZodType<ValidatedRes, ZodTypeDef>;
+      subscribers?: ((data: any) => void)[]
     } & AxiosRequestConfig<DefReq> & { pathParams?: T }
   ) {
 
@@ -99,7 +100,8 @@ export function createMutateHook<
               isError: false,
             } as const;
             setState(newState);
-            emitAtoms?.map((emitAtom) => emitAtom.set());
+            subscribers?.forEach(subscriber => subscriber(newState));
+            mutateOptions.subscribers?.forEach(subscriber => subscriber(newState));
             return newState;
           })
           .catch((error) => {

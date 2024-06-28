@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useMemo, useState } from 'react'
-import { lazyHook, mutateHook, queryHook } from './api'
+import { emitQueryHook, lazyHook, mutateHook, queryHook } from './api'
 import { z } from 'zod'
 import { UserDataComponent } from './componenet.userData'
 
@@ -26,21 +26,25 @@ function App() {
   const queryResult = queryHook(queryParams)
 
 
-  const mutateParams = useMemo(() => ({
+  const [{ mutate }, mutateRes] = mutateHook({
     // pathParams: {
     //   id: count
     // },
+    subscribers: [emitQueryHook],
     validator: ResDto
-  }), [count])
+  })
 
-  const [{ mutate }, mutateRes] = mutateHook(mutateParams)
+  console.log({ mutateRes });
+
 
   useEffect(() => {
-    mutate({
-      pathParams: {
-        id: count
-      }
-    })
+    setTimeout(() => {
+      mutate({
+        pathParams: {
+          id: count
+        }
+      })
+    }, 5000)
   }, [count])
 
 
